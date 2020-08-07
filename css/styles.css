@@ -1,0 +1,19 @@
+body {
+  overflow-x: hidden;
+}
+
+.modal {
+  background: rgb(0 0 0 / 46%);
+}
+
+a {
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

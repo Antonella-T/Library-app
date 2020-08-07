@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Antonella's library</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Angular CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <!-- jQuery CDN -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+    integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  <script src="scripts/dbConfig.js"></script>
+  <script src="scripts/scripts.js"></script>
+</head>
+
+<body ng-app="myApp" ng-controller="myCtrl" ng-class="{'modal-open': deleteModal}">
+
+  <div class="container-fluid">
+    <!-- Header start -->
+    <header class="border-bottom">
+      <!-- Nav start -->
+      <nav class="navbar navbar-light bg-light d-flex align-items-center mx-n3">
+        <a class="navbar-brand" href="#">
+          <h2 class="d-inline-flex">Antonella's library</h2>
+          <span ng-if="adminView" class="text-muted">(Admin)</span>
+        </a>
+        <ul class="nav nav-pills">
+          <li ng-if="adminView" class="nav-item">
+            <a class="nav-link text-white bg-info" ng-click="toggleModal('feesCollectedModal')">
+              <span class="mr-1">Fees collected</span>
+              <i class="fa fa-money" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li ng-if="adminView" class="nav-item">
+            <a class="nav-link text-white bg-info" ng-click="toggleModal('addBookModal')">
+              <span class="mr-1">Add book</span>
+              <i class="fa fa-book" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li ng-if="adminView" class="nav-item">
+            <a class="nav-link text-white bg-info" ng-click="toggleModal('uploadListModal')">
+              <span class="mr-1">Upload list</span>
+              <i class="fa fa-upload" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li ng-if="adminView" class="nav-item">
+            <a class="nav-link text-white bg-info" ng-click="toggleModal('emptyListModal')">
+              <span class="mr-1">Create table</span>
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li ng-if="adminView" class="nav-item">
+            <a class="nav-link bg-danger text-white" ng-click="toggleModal('deleteTableModal')">
+              <span>Delete table</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- Nav end -->
+    </header>
+    <!-- Header end -->
+
+
+    <div class="row">
+      <!-- Column left start -->
+      <div class="col-2 bg-light">
+        <!-- Form to search for title, author, type and year start -->
+        <form>
+          <div class="form-group">
+            <label>Title:</label>
+            <input ng-model="searchTerm.Title" type="text" class="form-control" placeholder="Search for title">
+          </div>
+
+          <div class="form-group">
+            <label>Author:</label>
+            <input ng-model="searchTerm.Author" type="text" class="form-control" placeholder="Search for author">
+          </div>
+
+          <div class="form-group">
+            <label>Year:</label>
+            <input ng-model="searchTerm.Year" type="text" class="form-control" placeholder="Search for year">
+          </div>
+
+          <div class="form-group">
+            <label>Categorie:</label>
+            <select ng-model="searchTerm.Cat" class="form-control">
+              <option selected>Romantic</option>
+              <option>Drama</option>
+              <option>Reference</option>
+              <option>Travel</option>
+              <option>Fiction</option>
+              <option>Art</option>
+              <option>Electronic</option>
+              <option>Biography</option>
+              <option>Management</option>
+              <option>Cooking</option>
+              <option>Children</option>
+              <option>Psychology</option>
+              <option>History</option>
+              <option>Politics</option>
+              <option>IT</option>
+              <option>Poetry</option>
+              <option>Music</option>
+              <option>Woodwork</option>
+              <option>Gardening</option>
+              <option>Network M.</option>
+              <option>Britannica</option>
+            </select>
+          </div>
+        </form>
+        <!-- Form end -->
+      </div>
+      <!-- Column left end -->
+
+      <!-- Column right start -->
+      <div class="col-10" style="overflow-y: auto;
+                                max-height: 80vh;">
+        <!-- Table start -->
+        <table class="table table-hover mt-3">
+          <thead class="bg-dark text-light">
+            <tr>
+              <th scope="col">
+                Title
+                <span ng-click="sortBy = 'Title'" style="cursor: pointer;" class="mr-1 ml-2">
+                  <i class="fa fa-chevron-circle-up" aria-hidden="true"></i>
+                </span>
+                <span ng-click="sortBy = '-Title'" style="cursor: pointer;">
+                  <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                </span>
+              </th>
+              <th scope="col">
+                Author
+                <span ng-click="sortBy = 'Author'" style="cursor: pointer;" class="mr-1 ml-2">
+                  <i class="fa fa-chevron-circle-up" aria-hidden="true"></i>
+                </span>
+                <span ng-click="sortBy = '-Author'" style="cursor: pointer;">
+                  <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                </span>
+              </th>
+              <th scope="col">Year</th>
+              <th scope="col">Type</th>
+              <th scope="col">Pack</th>
+              <th scope="col">ISBN</th>
+              <th scope="col" style="width:130px">Ongoing fees</th>
+              <th scope="col">Available</th>
+              <th scope="col" style="width: 100px;">Raiting</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="book in Inventory | filter: searchTerm | orderBy: sortBy">
+              <th scope="row">{{book.Title}}</th>
+              <td>{{book.Author}}</td>
+              <td>{{book.Year}}</td>
+              <td>{{book.Cat}}</td>
+              <td>{{book.Pack}}</td>
+              <td>{{book.ISBN}}</td>
+              <td>{{ (book.Booked) ? (calculateFee(book.DateRental) | currency:'€') : '-'  }}</td>
+              <td><span class="badge badge-pill badge-success"
+                  style="background-color: {{ (book.Booked) ? '#dde0e2' : 'green'  }}">Available</span></td>
+              <td>
+                <i ng-repeat="starActive in calculateRaiting(book.Reviews) track by $index" class="fa fa-star"
+                  aria-hidden="true" style="color: {{ (starActive) ? '#ffa500' : '#dde0e2'  }}"></i>
+              </td>
+              <td>
+                <!-- Delete, modify and book btns start -->
+                <div class="d-flex">
+                  <button ng-if="!adminView && !book.Booked" ng-click="toggleModal('bookingModal', book)" type="button"
+                    class="btn btn-sm ml-2 btn-success">
+                    <span>Book</span>
+                  </button>
+
+                  <button ng-if="!adminView && book.Booked" ng-click="toggleModal('returnModal', book)" type="button"
+                    class="btn btn-sm ml-2 btn-secondary">
+                    <span>Return</span>
+                  </button>
+
+                  <button ng-click="toggleModal('addBookModal', book)" ng-if="adminView" type="button"
+                    class="btn btn-sm ml-2 btn-success">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                  </button>
+
+                  <button ng-if="adminView" ng-click="toggleModal('deleteModal', book)" type="button"
+                    class="btn btn-sm ml-2 btn-danger">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                  </button>
+                </div>
+                <!-- Delete, modify and book btns end -->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Table end -->
+      </div>
+      <!-- Column right end -->
+    </div>
+  </div>
+
+  <!-- Footer start -->
+  <footer class="footer mt-auto py-3 bg-light d-flex justify-content-between mr-2 ml-2 border-top">
+    <span class="text-muted"> &copy; Copyright Antonella's library 2020</span>
+    <!-- Footer nav start -->
+    <nav class="navbar navbar-light bg-light mx-n3">
+      <ul class="nav nav-pills">
+        <li class="nav-item">
+          <a class="nav-link bg-primary text-white" aria-selected="true" ng-click="toggleView()">
+            <span ng-if="!adminView">Go to Admin</span>
+            <span ng-if="adminView">Go to User</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- Footer nav end -->
+  </footer>
+  <!-- Footer end -->
+
+  <!-- MODAL TO RETURN A BOOK START -->
+  <div class="modal" style="display: {{ (returnModal) ? 'block' : 'none'  }}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Return book</h5>
+          <button ng-click="toggleModal('returnModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h5 class="card-title">{{currentBook.Title}}</h5>
+          <form>
+            <div class="form-row">
+              <div class="form-group col-md-8">
+                <label>Raiting</label>
+                <select ng-model="currentBook.Raiting" class="form-control">
+                  <option>0</option>
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                </select>
+              </div>
+              <div class="form-group col-md-2 ml-5">
+                <label>Fee</label>
+                <p>{{ (book.Booked) ? (calculateFee(book.DateRental) | currency:'€') : '-'  }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Please write a breaf review</label>
+              <textarea ng-model="currentBook.Review" class="form-control" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('returnModal')" type="button" class="btn btn-secondary">Close</button>
+          <button type="button" class="btn btn-info" ng-click="returnBook()">Return book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO RETURN A BOOK END -->
+
+  <!-- MODAL TO BOOKING A BOOK START -->
+  <div id="booking" class="modal" style="display: {{ (bookingModal) ? 'block' : 'none'  }}">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Booking a book</h5>
+          <button ng-click="toggleModal('bookingModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+              <div class="col-md-4">
+                <img src="{{currentBook.Image ? 'images/' + currentBook.Image :'images/book-cover.jpg'}}"
+                  class="card-img" alt="Book cover">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{currentBook.Title}}</h5>
+                  <p class="card-text d-flex flex-column">
+                    <span><strong>Author:</strong> {{currentBook.Author}}</span>
+                    <span><strong>Year:</strong> {{currentBook.Year}}</span>
+                    <span><strong>Type:</strong> {{currentBook.Cat}}</span>
+                    <span><strong>Recommended:</strong> {{currentBook.Recommended}}</span>
+                    <span><strong>ISBN:</strong> {{currentBook.ISBN}}</span>
+                    <span><span class="badge badge-pill badge-success"
+                        style="background-color: {{ (currentBook.Booked) ? '#dde0e2' : 'green'  }}">Available</span></span>
+                    <span><strong>Raiting:</strong>
+                      <i ng-repeat="starActive in calculateRaiting(currentBook.Reviews) track by $index"
+                        class="fa fa-star" aria-hidden="true"
+                        style="color: {{ (starActive) ? '#ffa500' : '#dde0e2'  }}"></i>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div ng-if="currentBook.Reviews">
+                <span class="ml-2">Reviews:</span>
+                <p class="col-12 m-2 text-dark" ng-repeat="review in currentBook.Reviews">{{review.Review}}<span
+                    class="text-muted ml-3">{{review.Username}}</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-info" ng-click="confirmBooking()">Book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO BOOKING A BOOK END -->
+
+  <!-- MODAL TO DELETE A BOOK START -->
+  <div style="display: {{ (deleteModal) ? 'block' : 'none'  }}" id="dltBook" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete book</h5>
+          <button ng-click="toggleModal('deleteModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure that you want to remove <strong>{{currentBook.Title}}</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('deleteModal')" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="button" class="btn btn-info" ng-click="deleteRow()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO DELETE A BOOK END -->
+
+  <!-- MODAL TO CREATE/ADD A BOOK START -->
+  <div style="display: {{ (addBookModal) ? 'block' : 'none'  }}" class="modal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" ng-if="!currentBook">Add a book</h5>
+          <h5 class="modal-title" ng-if="currentBook">Modify book</h5>
+          <button ng-click="toggleModal('addBookModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p><b>Please fill out the form to add a book.</b></p>
+          <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+              <div class="col-md-12 p-2">
+                <form>
+                  <div class="form-group">
+                    <label>Book title</label>
+                    <input type="text" class="form-control" placeholder="Book title" ng-model="currentBook.Title">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-8">
+                      <label>Author</label>
+                      <input type="text" class="form-control" placeholder="Author" ng-model="currentBook.Author">
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>ISBN</label>
+                      <input type="text" class="form-control" placeholder="Book ISBN" ng-model="currentBook.ISBN">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-2">
+                      <label>Year</label>
+                      <input type="text" class="form-control" placeholder="Year" ng-model="currentBook.Year">
+                    </div>
+                    <div class="form-group col-md-2">
+                      <label>Pack</label>
+                      <select ng-model="currentBook.Pack" class="form-control">
+                        <option selected>SB</option>
+                        <option>HB</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="inputState">Recommended</label>
+                      <select id="inputState" class="form-control">
+                        <option selected>yes</option>
+                        <option>No</option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label for="inputState">Type</label>
+                      <select ng-model="currentBook.Cat" id="inputState" class="form-control">
+                        <option selected>Romantic</option>
+                        <option>Drama</option>
+                        <option>Reference</option>
+                        <option>Travel</option>
+                        <option>Fiction</option>
+                        <option>Art</option>
+                        <option>Electronic</option>
+                        <option>Biography</option>
+                        <option>Management</option>
+                        <option>Cooking</option>
+                        <option>Children</option>
+                        <option>Psychology</option>
+                        <option>History</option>
+                        <option>Politics</option>
+                        <option>IT</option>
+                        <option>Poetry</option>
+                        <option>Music</option>
+                        <option>Woodwork</option>
+                        <option>Gardening</option>
+                        <option>Network M.</option>
+                        <option>Britannica</option>
+                      </select>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group col-md-8">
+                        <label for="fileUploadFile">File</label>
+                        <input ng-model="fileToUpload" type="File" class="form-control" id="fileUploadFile"
+                          name="fileUploadFile">
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('addBookModal')" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="button" class="btn btn-info" ng-if="!currentBook.id" ng-click="addNewBook()">Add book</button>
+          <button type="button" class="btn btn-info" ng-if="currentBook.id" ng-click="modifyBook()">Modify book</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO CREATE/ADD A BOOK END -->
+
+  <!-- MODAL TO UPLOAD LIST START -->
+  <div style="display: {{ (uploadListModal) ? 'block' : 'none'  }}" id="uploadList" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Upload list</h5>
+          <button ng-click="toggleModal('uploadListModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Please confirm to upload all books information</p>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('uploadListModal')" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="button" class="btn btn-info" ng-click="uploadList()">Upload list</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO UPLOAD LIST END -->
+
+  <!-- MODAL TO CREATE TABLE START -->
+  <div style="display: {{ (emptyListModal) ? 'block' : 'none'  }}" id="uploadList" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create table</h5>
+          <button ng-click="toggleModal('emptyListModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>If you confirm, this will create the table only if the table has not been created yet.</p>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('emptyListModal')" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="button" class="btn btn-info" ng-click="createTable()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO CREATE TABLE END -->
+
+  <!-- MODAL TO DELETE TABLE START -->
+  <div style="display: {{ (deleteTableModal) ? 'block' : 'none'  }}" id="uploadList" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Delete table</h5>
+          <button ng-click="toggleModal('deleteTableModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>If you confirm, you will delete all books information.<br>Are you sure you want to proceed?</p>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('deleteTableModal')" type="button" class="btn btn-secondary">Cancel</button>
+          <button type="button" class="btn btn-info" ng-click="deleteTable()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO DELETE TABLE END -->
+
+  <!-- MODAL TO SEE FEES COLLECTED START -->
+  <div style="display: {{ (feesCollectedModal) ? 'block' : 'none'  }}" class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Fees collected</h5>
+          <button ng-click="toggleModal('feesCollectedModal')" type="button" class="close" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <table class="table table-hover mt-3">
+            <thead class="bg-dark text-light">
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Fees</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="book in Inventory" ng-if="book.Fees">
+                <th scope="row">{{book.Title}}</th>
+                <td>{{ (book.Fees) ? (book.Fees | currency:'€') : '-'  }}</td>
+              </tr>
+              <tr class="bg-light">
+                <td><strong>Total:</strong></td>
+                <td>{{sumFees() | currency:'€'}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button ng-click="toggleModal('feesCollectedModal')" type="button" class="btn btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- MODAL TO SEE FEES COLLECTED END -->
+</body>
+
+</html>
